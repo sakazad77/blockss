@@ -1,0 +1,288 @@
+package com.shaik.blockss;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class ScoreWindow extends Activity implements OnClickListener {
+
+	TextView tvScoreTime, tvHighScore, tvThisRound;
+	long gotData = 0;
+	int gotDataToInt;
+	int fmillis = 0;
+	int fseconds = 0;
+	int fminutes = 0;
+	String timeTaken;
+	Button bGoToPreviousScores;
+	int ScoreNumber;
+	String previousScore;
+	String previousScoreSquares = "";
+	int lowestScore2;
+	int lowestScore;
+	String numberOfEntries = "";
+	ArrayList<Integer> allScores = new ArrayList<Integer>();
+	ArrayList<Integer> allScores2 = new ArrayList<Integer>();
+	ArrayList<Integer> allScores4 = new ArrayList<Integer>();
+	ArrayList<Integer> allScores6 = new ArrayList<Integer>();
+	ArrayList<Integer> allScores8 = new ArrayList<Integer>();
+	Typeface font;
+	int numberofsquares2, numberofsquares4, numberofsquares6, numberofsquares8;
+	String squares;
+	Iterator<Integer> it;
+	String squaresNumber;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+
+		// Full Screen
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		setContentView(R.layout.thisround_score);
+		tvScoreTime = (TextView) findViewById(R.id.tvScoreTime);
+		tvHighScore = (TextView) findViewById(R.id.tvHighScore);
+		tvThisRound = (TextView) findViewById(R.id.tvThisRound);
+
+		font = Typeface.createFromAsset(this.getAssets(), "GeosansLight.ttf");
+
+		tvScoreTime.setTypeface(font);
+		tvHighScore.setTypeface(font);
+		tvThisRound.setTypeface(font);
+
+		Bundle gotBasket = getIntent().getExtras();
+		gotData = gotBasket.getLong("timetaken");
+		gotDataToInt = (int) gotData;
+		lowestScore2 = gotDataToInt;
+
+		if (gotData != 0) {
+			fmillis = (int) gotData;
+			fseconds = (int) gotData / 1000;
+			fminutes = (int) fseconds / 60;
+			fmillis = fmillis % 100;
+			fseconds = fseconds % 60;
+			timeTaken = fminutes + ":" + fseconds + ":" + fmillis;
+		} else {
+			timeTaken = "Error";
+		}
+		tvScoreTime.setText(timeTaken);
+
+		bGoToPreviousScores = (Button) findViewById(R.id.bGoToPreviousScores);
+		bGoToPreviousScores.setOnClickListener(this);
+
+		SharedPreferences getPrefs3 = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		String name = getPrefs3.getString("PlayerNameFinal", "Bisscuit");
+
+		numberofsquares2 = getPrefs3.getInt("NumberOfSquares2", 5);
+		numberofsquares4 = getPrefs3.getInt("NumberOfSquares4", 5);
+		numberofsquares6 = getPrefs3.getInt("NumberOfSquares6", 5);
+		numberofsquares8 = getPrefs3.getInt("NumberOfSquares8", 5);
+
+		if (numberofsquares2 == 200) {
+			tvThisRound.setText("This Round (2*2)");
+			squares = "(2*2)";
+		}
+		if (numberofsquares4 == 200) {
+			tvThisRound.setText("This Round (4*4)");
+			squares = "(4*4)";
+		}
+		if (numberofsquares6 == 200) {
+			tvThisRound.setText("This Round (6*6)");
+			squares = "(6*6)";
+		}
+		if (numberofsquares8 == 200) {
+			tvThisRound.setText("This Round (8*8)");
+			squares = "(8*8)";
+		}
+
+		DataBase entry = new DataBase(ScoreWindow.this);
+		entry.open();
+		if (!entry.getNumber().contentEquals(""))
+			numberOfEntries = entry.getNumber();
+
+		if (numberOfEntries.length() != 0) {
+			int numberOfEntriesInt = (int) Integer.parseInt(numberOfEntries);
+			for (int i = 1; i <= numberOfEntriesInt; i++) {
+				previousScore = entry.getScore(i);
+				previousScoreSquares = entry.getSquares(i);
+				int position = previousScore.indexOf(":");
+				int position2 = previousScore.lastIndexOf(":");
+			
+				
+				
+				int position3 = previousScoreSquares.indexOf("(");
+				int position4 = previousScoreSquares.indexOf(")");
+				
+				squaresNumber = previousScoreSquares.substring(1, 2);
+				
+				int squaresNumberInt = Integer.valueOf(squaresNumber);
+
+				String minutes = previousScore.substring(0, position);
+				int minutesMilli = (int) (Integer.parseInt(minutes)) * 60 * 1000;
+
+				String seconds = previousScore.substring(position + 1,
+						position2);
+				int secondsMilli = (int) (Integer.parseInt(seconds)) * 1000;
+
+				String milliString = previousScore.substring(position2 + 1);
+				int milli = (int) Integer.parseInt(milliString);
+
+				int totalScore = minutesMilli + secondsMilli + milli;
+
+				if (squaresNumberInt == 6) {
+					allScores6.add(totalScore);
+				}
+				if (squaresNumberInt == 2) {
+					allScores2.add(totalScore);
+				}
+				if (squaresNumberInt == 4) {
+					allScores4.add(totalScore);
+				}
+				if (squaresNumberInt == 8) {
+					allScores8.add(totalScore);
+				}
+				
+			}
+			
+			lowestScore = gotDataToInt;
+			
+			if (numberofsquares6 == 200) {
+				if (allScores6.size() != 0) {
+					it = allScores6.iterator();
+					while (it.hasNext()) {
+						int k = (int) it.next();
+						if (lowestScore <= k) {
+							lowestScore2 = lowestScore;
+						} else {
+							lowestScore2 = k;
+						}
+						lowestScore = lowestScore2;
+					}
+						if (lowestScore == gotDataToInt) {
+							tvHighScore
+								.setText("Highest in 6*6 !! That's like a man !!");
+								tvHighScore.setVisibility(View.VISIBLE);
+						}		
+				} else {
+					tvHighScore
+							.setText("Highest in 6*6 !! That's like a man !!");
+					tvHighScore.setVisibility(View.VISIBLE);
+				}
+			} else if (numberofsquares2 == 200) {
+				if (allScores2.size() != 0) {
+					it = allScores2.iterator();
+					while (it.hasNext()) {
+						int k = (int) it.next();
+						if (lowestScore <= k) {
+							lowestScore2 = lowestScore;
+						} else {
+							lowestScore2 = k;
+						}
+						lowestScore = lowestScore2;
+					}
+					if (lowestScore == gotDataToInt) {
+						tvHighScore
+								.setText("Highest in 2*2 !! A kid can also do it !!");
+						tvHighScore.setVisibility(View.VISIBLE);
+					}
+				} else {
+					tvHighScore
+							.setText("Highest in 2*2 !! A kid can also do it !!");
+					tvHighScore.setVisibility(View.VISIBLE);
+				}
+			} else if (numberofsquares4 == 200) {
+				if (allScores4.size() != 0) {
+					it = allScores4.iterator();
+					while (it.hasNext()) {
+						int k = (int) it.next();
+						if (lowestScore <= k) {
+							lowestScore2 = lowestScore;
+						} else {
+							lowestScore2 = k;
+						}
+						lowestScore = lowestScore2;	
+					}
+					if (lowestScore == gotDataToInt) {
+						tvHighScore.setText("Hmm !! Highest in 4*4 !! Good Job !!");
+						tvHighScore.setVisibility(View.VISIBLE);
+					}
+				} else {
+					tvHighScore.setText("Hmm !! Highest in 4*4 !! Good Job !!");
+					tvHighScore.setVisibility(View.VISIBLE);
+				}
+			} else if (numberofsquares8 == 200) {
+				if (allScores8.size() != 0) {
+					it = allScores8.iterator();
+					while (it.hasNext()) {
+						int k = (int) it.next();
+						if (lowestScore <= k) {
+							lowestScore2 = lowestScore;
+						} else {
+							lowestScore2 = k;
+						}
+						lowestScore = lowestScore2;
+					}
+					if (lowestScore == gotDataToInt) {
+						tvHighScore.setText("You Are A Pro !! Congrats !!");
+						tvHighScore.setVisibility(View.VISIBLE);
+					}
+				} else {
+					tvHighScore.setText("You Are A Pro !! Congrats !!");
+					tvHighScore.setVisibility(View.VISIBLE);
+				}
+			}
+				
+		}
+		 else {
+			if (numberofsquares2 == 200) {
+				tvHighScore
+						.setText("Highest in 2*2 !! A kid can also do it !!");
+			}
+			if (numberofsquares4 == 200) {
+				tvHighScore.setText("Hmm !! Highest in 4*4 !! Good Job !!");
+			}
+			if (numberofsquares6 == 200) {
+				tvHighScore.setText("Highest in 6*6 !! That's like a man !!!");
+			}
+			if (numberofsquares8 == 200) {
+				tvHighScore.setText("You Are A Pro !! Congrats !!");
+			}
+			tvHighScore.setVisibility(View.VISIBLE);
+		}
+
+		entry.createEntry(name, timeTaken, squares);
+		entry.close();
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		tvHighScore.setVisibility(View.INVISIBLE);
+		Intent i = new Intent("com.shaik.blockss.PREVIOUSSCORES");
+		startActivity(i);
+		finish();
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		finish();
+	}
+}
