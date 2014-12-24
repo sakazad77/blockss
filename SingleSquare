@@ -1,0 +1,40 @@
+package com.shaik.blockss;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.view.View;
+
+@SuppressLint("Instantiatable")
+public class SingleSquare {
+	
+	Context c;
+	Canvas ca;
+	Rect r;
+	Paint paint;
+	
+	protected void onDraw(Canvas canvas) {
+		// TODO Auto-generated method stub
+		canvas.drawRect(r, paint);
+	}	
+	
+	public SingleSquare(Rect re, Paint p, Context co){
+		c = co;
+		r = re;
+		paint = p;
+	}
+	
+	public Rect returnRect(){
+		return r;
+	}
+	
+	public Paint returnPaint(){
+		return paint;
+	}
+	
+	public void setPaint(Paint p){
+		paint = p;
+	}
+}
