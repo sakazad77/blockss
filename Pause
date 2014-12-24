@@ -1,0 +1,67 @@
+package com.shaik.blockss;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
+public class Pause extends Activity implements OnClickListener {
+
+	Button bRestart, bExit_to_menu, bExitGame;
+	int kill;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+
+		// Full Screen
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		setContentView(R.layout.activity_starting_point);
+		setContentView(R.layout.pause);
+		initialize();
+
+		bRestart.setOnClickListener(this);
+		bExit_to_menu.setOnClickListener(this);
+		bExitGame.setOnClickListener(this);
+	}
+
+	private void initialize() {
+		// TODO Auto-generated method stub
+
+		bRestart = (Button) findViewById(R.id.bRestart);
+		bExit_to_menu = (Button) findViewById(R.id.bExitToMenu);
+		bExitGame = (Button) findViewById(R.id.bExitGame);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+
+		case R.id.bRestart:
+			Intent play_new_game_again = new Intent(
+					"com.shaik.blockss.PLAYGAME");
+			startActivity(play_new_game_again);
+			finish();
+			break;
+			
+		case R.id.bExitToMenu:
+			Intent menu = new Intent("com.shaik.blockss.NEWGAMEWINDOW");
+			startActivity(menu);
+			finish();
+			break;
+			
+		case R.id.bExitGame:
+			finish();
+		}
+		finish();
+	}
+}
