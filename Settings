@@ -1,0 +1,185 @@
+package com.shaik.blockss;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+
+public class Settings extends Activity implements OnClickListener,
+		OnCheckedChangeListener,
+		android.widget.RadioGroup.OnCheckedChangeListener {
+
+	TextView tvSettings, tvEnterYourName, tvMusic, tvLevel, tvSquares;
+	Button save;
+	RadioGroup rgDifficulty, rgSquares;
+	RadioButton rbEasy, rbHard;
+	EditText name;
+	CheckBox cbMusic;
+	int rbe = 200;
+	int rbh = 400;
+	int cbm = 200;
+	int rb2 = 400;
+	int rb4 = 400;
+	int rb6 = 200;
+	int rb8 = 400;
+	String nameString = "Player";
+	Typeface font;
+	//public static final String filename = "My Shared Data";
+	 SharedPreferences someData;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+
+		// Full Screen
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
+		font = Typeface.createFromAsset(this.getAssets(),
+				"GeosansLight.ttf");
+		
+		setContentView(R.layout.settings_two);
+		initlialize();
+
+		//someData = getSharedPreferences(filename, 0);
+		someData = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		save.setOnClickListener(this);
+		cbMusic.setOnCheckedChangeListener(this);
+		rgDifficulty.setOnCheckedChangeListener(this);
+		rgSquares.setOnCheckedChangeListener(this);
+	}
+
+	private void initlialize() {
+		// TODO Auto-generated method stub
+		save = (Button) findViewById(R.id.bSaveSettings);
+		rgDifficulty = (RadioGroup) findViewById(R.id.rgDifficulty);
+		//edit
+		rgSquares = (RadioGroup) findViewById(R.id.rgSquares);
+		
+		rbEasy = (RadioButton) findViewById(R.id.rbEasy);
+		rbHard = (RadioButton) findViewById(R.id.rbHard);
+		name = (EditText) findViewById(R.id.etName);
+		cbMusic = (CheckBox) findViewById(R.id.cbMusic);
+		tvSettings = (TextView) findViewById(R.id.tvSettings);
+		tvEnterYourName = (TextView) findViewById(R.id.tvEnterYourName);
+		tvMusic = (TextView) findViewById(R.id.tvMusic);
+		tvLevel = (TextView) findViewById(R.id.tvLevel);
+		//edit
+		tvSquares = (TextView) findViewById(R.id.tvSquares);
+		
+		tvSettings.setTypeface(font);
+		tvEnterYourName.setTypeface(font);
+		tvMusic.setTypeface(font);
+		rbEasy.setTypeface(font);
+		rbHard.setTypeface(font);
+		tvLevel.setTypeface(font);
+		//edit
+		tvSquares.setTypeface(font);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+		nameString = name.getText().toString();
+		
+		SharedPreferences.Editor editor = someData.edit();
+		editor.putString("PlayerNameFinal", nameString);
+		editor.putInt("MusicPreference", cbm);
+		editor.putInt("DifficultyPreference", rbe);
+		//edit
+		editor.putInt("NumberOfSquares2", rb2);
+		editor.putInt("NumberOfSquares4", rb4);
+		editor.putInt("NumberOfSquares6", rb6);
+		editor.putInt("NumberOfSquares8", rb8);
+		editor.commit();
+		
+		
+		//AllPrefs.setMyNamePref(this.getApplicationContext(), nameString);
+		//AllPrefs.setMyMusicPref(this.getApplicationContext(), cbm);
+		//AllPrefs.setMyDifficultyPref(this.getApplicationContext(), rbe);
+	
+		Intent  i = new Intent("com.shaik.blockss.NEWGAMEWINDOW");
+		startActivity(i);
+		finish();
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		// TODO Auto-generated method stub
+		if(cbMusic.isChecked()){
+			cbm = 200;
+			cbMusic.setChecked(true);
+		}else{
+			cbm = 400;
+			cbMusic.setChecked(false);
+		}
+	}
+
+	@Override
+	public void onCheckedChanged(RadioGroup group, int checkedId) {
+		// TODO Auto-generated method stub
+		switch (checkedId) {
+		case R.id.rbEasy:
+			rbe = 200;
+			rbh = 400;
+			break;
+		case R.id.rbHard:
+			rbh = 200;
+			rbe = 400;
+			break;
+		case R.id.rb2by2:
+			rb2 = 200;
+			rb4 = 400;
+			rb6 = 400;
+			rb8 = 400;
+			break;
+		case R.id.rb4by4:
+			rb2 = 400;
+			rb4 = 200;
+			rb6 = 400;
+			rb8 = 400;
+			break;
+		case R.id.rb6by6:
+			rb2 = 400;
+			rb4 = 400;
+			rb6 = 200;
+			rb8 = 400;
+			break;
+		case R.id.rb8by8:
+			rb2 = 400;
+			rb4 = 400;
+			rb6 = 400;
+			rb8 = 200;
+			break;
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		Intent  i = new Intent("com.shaik.blockss.NEWGAMEWINDOW");
+		startActivity(i);
+		finish();
+	}	
+	
+}
