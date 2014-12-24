@@ -1,0 +1,223 @@
+package com.shaik.blockss;
+
+import java.util.Random;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.graphics.Paint.Align;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+
+public class NewGameWindow extends Activity {
+
+	NewGameRewritten ng;
+	MediaPlayer backgroundScore;
+	SharedPreferences savedData;
+	
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+
+		// Full Screen
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+		ng = new NewGameRewritten(this);
+		setContentView(ng);
+
+		SharedPreferences getPrefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		// boolean music = getPrefs.getBoolean("MusicValue", true);
+		int music = getPrefs.getInt("MusicPreference", 5);
+
+		backgroundScore = MediaPlayer.create(NewGameWindow.this, R.raw.intro);
+		backgroundScore.setLooping(true);
+
+		if (music == 400) {
+			//backgroundScore.start();
+			SharedPreferences.Editor edit = getPrefs.edit();
+			edit.putInt("MusicPreference", 400);
+			edit.commit();
+		}else if(music == 0 || music == 200){
+			backgroundScore.start();
+			SharedPreferences.Editor edit = getPrefs.edit();
+			edit.putInt("MusicPreference", 200);
+			edit.commit();
+		}else {
+			SharedPreferences.Editor edit = getPrefs.edit();
+			edit.putInt("MusicPreference", 200);
+			edit.commit();
+		}
+	}
+
+	public class NewGameRewritten extends View {
+
+		Bitmap newGameButton, settingsButton, previousScoresButton;
+		Button newGB, setBut;
+		float x, y, canvasWidth;
+		Random r = new Random();
+		Typeface font;
+		Rect fir = new Rect();
+		Rect ser = new Rect();
+		Rect thr = new Rect();
+		Rect four = new Rect();
+		Paint fip = new Paint();
+		Paint sep = new Paint();
+		Paint thp = new Paint();
+		Paint fourp = new Paint();
+		Paint p = new Paint();
+
+		public NewGameRewritten(Context context) {
+			super(context);
+			// TODO Auto-generated constructor stub
+
+			font = Typeface.createFromAsset(context.getAssets(),
+					"GeosansLight.ttf");
+			newGameButton = BitmapFactory.decodeResource(getResources(),
+					R.drawable.new_game2);
+			settingsButton = BitmapFactory.decodeResource(getResources(),
+					R.drawable.settings2);
+			previousScoresButton = BitmapFactory.decodeResource(getResources(), R.drawable.cup_big);
+			// newGB.setBackgroundResource(R.drawable.new_game);
+			// setBut.setBackgroundResource(R.drawable.settings);
+
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas) {
+			// TODO Auto-generated method stub
+			super.onDraw(canvas);
+			canvas.drawColor(Color.WHITE);
+
+			p.setColor(Color.parseColor("#ff6a4f"));
+			p.setTextSize(canvas.getWidth() / 6);
+			p.setTypeface(font);
+			p.setTextAlign(Align.LEFT);
+			float z = p.measureText("BLOCKSS");
+			
+			canvasWidth = canvas.getWidth();
+			x = canvas.getWidth()
+					- (newGameButton.getWidth() + settingsButton.getWidth());
+			y = (canvas.getHeight() - (newGameButton.getHeight()))
+					- (canvas.getHeight() / 10);
+
+			// canvas.drawText("BLOCKSS", canvas.getWidth()/8,
+			// canvas.getHeight()/9, p);
+
+			canvas.drawText("BLOCKSS", canvas.getWidth()/2 - z/2, canvas.getHeight() / 9, p);
+			
+			
+			canvas.drawBitmap(newGameButton, x / 3, y, null);
+			canvas.drawBitmap(settingsButton,
+					(x / 3 + x / 3 + newGameButton.getWidth()), y, null);
+			canvas.drawBitmap(previousScoresButton,
+					canvas.getWidth()/2 - previousScoresButton.getWidth()/2, 
+					y + newGameButton.getHeight() + previousScoresButton.getHeight()/2, null);
+
+			fir.set(canvas.getWidth() / 4, canvas.getHeight() / 4,
+					(canvas.getWidth() / 2), (canvas.getHeight() / 2));
+			ser.set((canvas.getWidth() / 2), (canvas.getHeight() / 4),
+					((canvas.getWidth() / 2) + (canvas.getWidth() / 4)),
+					(canvas.getHeight() / 2));
+			thr.set((canvas.getWidth() / 2), (canvas.getHeight() / 2),
+					((canvas.getWidth() / 2) + (canvas.getWidth() / 4)),
+					(canvas.getHeight() / 2) + (canvas.getHeight() / 4));
+			four.set((canvas.getWidth() / 4), (canvas.getHeight() / 2),
+					((canvas.getWidth() / 2)), (canvas.getHeight() / 2)
+							+ (canvas.getHeight() / 4));
+
+			fip.setColor(Color.rgb(r.nextInt(256), r.nextInt(256),
+					r.nextInt(256)));
+			sep.setColor(Color.rgb(r.nextInt(256), r.nextInt(256),
+					r.nextInt(256)));
+			thp.setColor(Color.rgb(r.nextInt(256), r.nextInt(256),
+					r.nextInt(256)));
+			fourp.setColor(Color.rgb(r.nextInt(256), r.nextInt(256),
+					r.nextInt(256)));
+
+			canvas.drawRect(fir, fip);
+			canvas.drawRect(ser, sep);
+			canvas.drawRect(thr, thp);
+			canvas.drawRect(four, fourp);
+			invalidate();
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			// TODO Auto-generated method stub
+			int action = event.getAction();
+			float X = event.getX();
+			float Y = event.getY();
+			float bitmapNewGameEndX = (x / 3) + (newGameButton.getWidth());
+			float bitmapNewGameEndY = (y + newGameButton.getHeight());
+			float bitmapSettingsStartX = x / 3 + x / 3
+					+ newGameButton.getWidth();
+			float bitmapSettingsEndX = bitmapSettingsStartX
+					+ settingsButton.getWidth();
+			float previousScoresButtonStartX = canvasWidth/2 - previousScoresButton.getWidth()/2;
+			float previousScoresButtonEndX = previousScoresButtonStartX + previousScoresButton.getWidth();
+
+			if ((x / 3 <= X && X <= bitmapNewGameEndX)
+					&& (Y >= y && Y <= bitmapNewGameEndY)) {
+				switch (action) {
+				case MotionEvent.ACTION_DOWN:
+					Intent playgame = new Intent("com.shaik.blockss.PLAYGAME");
+					startActivity(playgame);
+					finish();
+				}
+				finish();
+			}
+			if ((bitmapSettingsStartX <= X && X <= bitmapSettingsEndX)
+					&& (Y >= y && Y <= (y + settingsButton.getHeight()))) {
+				switch (action) {
+				case MotionEvent.ACTION_DOWN:
+					Intent settings = new Intent("com.shaik.blockss.SETTINGS");
+					startActivity(settings);
+					finish();
+				}
+				finish();
+			}
+			if ((previousScoresButtonStartX <= X && X <= previousScoresButtonEndX)
+					&& (Y >= y + newGameButton.getHeight() + previousScoresButton.getHeight()/2 && 
+					Y <= ((y + newGameButton.getHeight() + previousScoresButton.getHeight()/2)) 
+						+ previousScoresButton.getHeight())) {
+				switch (action) {
+				case MotionEvent.ACTION_DOWN:
+					Intent previous_scores = new Intent("com.shaik.blockss.PREVIOUSSCORES");
+					startActivity(previous_scores);
+					finish();
+				}
+				finish();
+			}
+			return super.onTouchEvent(event);
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		backgroundScore.release();
+		finish();
+	}
+}
